@@ -1,0 +1,104 @@
+# (c) 2025 and onwards The vChewing Project (LGPL v3.0 License or later).
+# ====================
+# This code is released under the SPDX-License-Identifier: `LGPL-3.0-or-later`.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ============================================================
+  # Swift (Linux)
+  # ============================================================
+  swift-linux:
+    name: Swift (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Swift Setup
+        uses: SwiftyLab/setup-swift@latest
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: swift build -v
+
+      - name: Test
+        run: swift test -v
+
+  # ============================================================
+  # Swift (macOS)
+  # ============================================================
+  swift-macos:
+    name: Swift (macOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build
+        run: swift build -v
+
+      - name: Test
+        run: swift test -v
+
+  # ============================================================
+  # .NET (Linux)
+  # ============================================================
+  dotnet-linux:
+    name: .NET (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: WinNT
+
+      - name: Build
+        run: dotnet build --no-restore -v normal
+        working-directory: WinNT
+
+      - name: Test
+        run: dotnet test --no-build -v normal
+        working-directory: WinNT
+
+  # ============================================================
+  # .NET (Windows)
+  # ============================================================
+  dotnet-windows:
+    name: .NET (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: WinNT
+
+      - name: Build
+        run: dotnet build --no-restore -v normal
+        working-directory: WinNT
+
+      - name: Test
+        run: dotnet test --no-build -v normal
+        working-directory: WinNT

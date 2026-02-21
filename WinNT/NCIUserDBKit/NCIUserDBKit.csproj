@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>NCIUserDBKit</RootNamespace>
+    <AssemblyName>NCIUserDBKit</AssemblyName>
+
+    <!-- NuGet Package Properties -->
+    <PackageId>vChewing.Utils.NCIUserDBKit</PackageId>
+    <Version>1.0.2</Version>
+    <Authors>The vChewing Project</Authors>
+    <Company>The vChewing Project</Company>
+    <Product>NCIUserDBKit</Product>
+    <Description>自然輸入法 (NCI / GOING) 使用者資料庫讀取工具。支援讀取使用者自訂詞條，提供 Gram 資料存取 API。</Description>
+    <Copyright>Copyright © 2025 The vChewing Project</Copyright>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/vChewing/NCIUserDBKit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vChewing/NCIUserDBKit</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>vChewing;NCI;GOING;InputMethod;IME;SQLite;Bopomofo;Zhuyin</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Initial release for Natural Chinese Input (GOING) user database support.</PackageReleaseNotes>
+
+    <!-- Package Settings -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
