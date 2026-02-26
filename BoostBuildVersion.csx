@@ -3,13 +3,13 @@
 #nullable enable
 // BoostBuildVersion.csx
 // 用途:
-//  1. 自動將主專案 WinNT/KeyKeyUserDBKit/KeyKeyUserDBKit.csproj 的 <Version> 之 semver patch 自動 +1。
+//  1. 自動將主專案 WinNT/NCIUserDBKit/NCIUserDBKit.csproj 的 <Version> 之 semver patch 自動 +1。
 //  2. 或若第一個非旗標參數是合法 semver (X.Y.Z) 則直接使用該版本號。
 //  3. 同步更新以下檔案中的版本字串：
-//       - WinNT/KeyKeyUserDBKit/KeyKeyUserDBKit.csproj: Version
-//       - WinNT/KeyKeyDecryptCLI/KeyKeyDecryptCLI.csproj: Version
-//       - WinNT/KeyKeyUserDBKit.Tests/KeyKeyUserDBKit.Tests.csproj: Version
-//       - Sources/KeyKeyUserDBKit/KeyKeyUserDBKit.swift: version 常數
+//       - WinNT/NCIUserDBKit/NCIUserDBKit.csproj: Version
+//       - WinNT/NCIDecryptCLI/NCIDecryptCLI.csproj: Version
+//       - WinNT/NCIUserDBKit.Tests/NCIUserDBKit.Tests.csproj: Version
+//       - Sources/NCIUserDBKit/NCIUserDBKit.swift: version 常數
 //  4. 保留原始 UTF-8 BOM（若存在）與換行格式。
 // 使用方式:
 //   dotnet script BoostBuildVersion.csx --             (自動 patch +1)
@@ -30,7 +30,7 @@ bool dryRun = Args.Contains("--dry-run");
 var rawArgs = Args.Where(a => a != "--dry-run").ToList();
 
 string root = Directory.GetCurrentDirectory();
-string mainProj = Path.Combine(root, "WinNT", "KeyKeyUserDBKit", "KeyKeyUserDBKit.csproj");
+string mainProj = Path.Combine(root, "WinNT", "NCIUserDBKit", "NCIUserDBKit.csproj");
 if (!File.Exists(mainProj)) {
     Console.Error.WriteLine($"找不到主專案檔: {mainProj}");
     Environment.Exit(1);
@@ -63,7 +63,7 @@ void WriteAllPreserve(string path, string text, bool hadBom, bool usedCRLF) {
 string projText = ReadAllPreserve(mainProj, out _, out _);
 var verMatch = Regex.Match(projText, "<Version>([0-9]+\\.[0-9]+(?:\\.[0-9]+)?)</Version>");
 if (!verMatch.Success) {
-    Console.Error.WriteLine("無法在 KeyKeyUserDBKit.csproj 找到 <Version> 標籤。");
+    Console.Error.WriteLine("無法在 NCIUserDBKit.csproj 找到 <Version> 標籤。");
     Environment.Exit(1);
 }
 
@@ -99,12 +99,11 @@ Console.WriteLine($"Old version: {oldVersion} -> New version: {newVersion}{(manu
 
 // 定義要更新的 .csproj 檔案
 var csprojFiles = new[] {
-    Path.Combine(root, "WinNT", "KeyKeyUserDBKit", "KeyKeyUserDBKit.csproj"),
-    Path.Combine(root, "WinNT", "KeyKeyDecryptCLI", "KeyKeyDecryptCLI.csproj"),
-    Path.Combine(root, "WinNT", "KeyKeyUserDBKit.Tests", "KeyKeyUserDBKit.Tests.csproj")
+    Path.Combine(root, "WinNT", "NCIUserDBKit", "NCIUserDBKit.csproj"),
+    Path.Combine(root, "WinNT", "NCIUserDBKit.Tests", "NCIUserDBKit.Tests.csproj")
 };
 
-string swiftFile = Path.Combine(root, "Sources", "KeyKeyUserDBKit", "KeyKeyUserDBKit.swift");
+string swiftFile = Path.Combine(root, "Sources", "NCIUserDBKit", "NCIUserDBKit.swift");
 
 // 用於替換 XML 版本標籤的正則
 var xmlTagPattern = new Regex(
