@@ -89,7 +89,8 @@ static int HandleFind() {
 
   if (databases.Count == 0) {
     Console.WriteLine("未找到任何自然輸入法使用者資料庫。");
-    Console.WriteLine(@"搜尋範圍：%appdata%\Going{10-99}\profile.db");
+    Console.WriteLine("搜尋範圍：%appdata%\\Going{10-99}\\profile.db");
+    Console.WriteLine("           ~/Library/Application Support/GOING{10-99}/UserData/Going{N}/profile.db");
     return 0;
   }
 

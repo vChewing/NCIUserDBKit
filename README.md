@@ -158,6 +158,12 @@ swift run ncidump dump /path/to/profile.db
 # 搜尋已安裝的自然輸入法資料庫
 swift run ncidump find
 
+此指令會在下列位置搜尋
+
+* macOS: `~/Library/Application Support/GOING{10-99}/UserData/Going{N}/profile.db`
+* Windows: `%APPDATA%\Going{10-99}\profile.db`
+
+即便您在非本平台運行也不會失敗。
 # 匯出所有找到的使用者自訂詞條
 swift run ncidump dumpall
 ```

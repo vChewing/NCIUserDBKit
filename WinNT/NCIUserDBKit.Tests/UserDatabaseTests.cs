@@ -2,6 +2,8 @@
 // ====================
 // This code is released under the SPDX-License-Identifier: `LGPL-3.0-or-later`.
 
+using System.Runtime.InteropServices;
+
 using Microsoft.Data.Sqlite;
 
 using Xunit;
@@ -167,5 +169,47 @@ public class UserDatabaseTests : IDisposable {
     var databases = UserDatabase.FindDatabases();
     // 不一定有安裝自然輸入法，但呼叫不應拋出錯誤
     Assert.NotNull(databases);
+  }
+
+  [Fact]
+  public void TestFindDatabases_BothPlatformPaths() {
+    var expected = new List<string>();
+
+    // create windows-style file under temporary APPDATA
+    var tempApp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+    Directory.CreateDirectory(Path.Combine(tempApp, "Going10"));
+    var winDb = Path.Combine(tempApp, "Going10", "profile.db");
+    File.Create(winDb).Dispose();
+    expected.Add(winDb);
+
+    // override APPDATA during search
+    var originalApp = Environment.GetEnvironmentVariable("APPDATA");
+    Environment.SetEnvironmentVariable("APPDATA", tempApp);
+
+    // create mac-style file under the real home directory
+    var home = Environment.GetEnvironmentVariable("HOME")
+               ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    if (!string.IsNullOrEmpty(home)) {
+      var appSupport = Path.Combine(home, "Library", "Application Support", "GOING10", "UserData", "Going10");
+      Directory.CreateDirectory(appSupport);
+      var macDb = Path.Combine(appSupport, "profile.db");
+      File.Create(macDb).Dispose();
+      expected.Add(macDb);
+    }
+
+    try {
+      var found = UserDatabase.FindDatabases();
+      foreach (var path in expected) {
+        Assert.Contains(path, found);
+      }
+    } finally {
+      // cleanup
+      Environment.SetEnvironmentVariable("APPDATA", originalApp);
+      if (Directory.Exists(tempApp)) Directory.Delete(tempApp, true);
+      if (!string.IsNullOrEmpty(home)) {
+        var dir = Path.Combine(home, "Library", "Application Support", "GOING10");
+        if (Directory.Exists(dir)) Directory.Delete(dir, true);
+      }
+    }
   }
 }

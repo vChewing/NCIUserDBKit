@@ -74,10 +74,16 @@ extension NCIUserDBKit {
     /// 在 macOS 上尋找所有自然輸入法使用者資料庫
     /// - Returns: 找到的資料庫檔案路徑陣列
     public static func findDatabases() -> [URL] {
-      #if os(macOS)
+      var results: [URL] = []
+
+      // Always attempt both common locations; the loops are harmless on other
+      // platforms and make the behaviour dependable even if runtime platform
+      // detection is unreliable.
+
+      // macOS-style path – look under ~/Library/Application Support
+      #if canImport(Darwin)
         let homeURL = URL(fileURLWithPath: String(cString: getpwuid(getuid()).pointee.pw_dir))
         let appSupport = homeURL.appendingPathComponent("Library/Application Support")
-        var results: [URL] = []
         for version in NCIUserDBKit.versionRange {
           let dbURL = appSupport
             .appendingPathComponent("GOING\(version)/UserData/Going\(version)/profile.db")
@@ -85,10 +91,21 @@ extension NCIUserDBKit {
             results.append(dbURL)
           }
         }
-        return results
-      #else
-        return []
       #endif
+
+      // Windows-style path – use APPDATA environment variable if present
+      if let appData = ProcessInfo.processInfo.environment["APPDATA"], !appData.isEmpty {
+        for version in NCIUserDBKit.versionRange {
+          let dbURL = URL(fileURLWithPath: appData)
+            .appendingPathComponent("Going\(version)")
+            .appendingPathComponent("profile.db")
+          if FileManager.default.fileExists(atPath: dbURL.path) {
+            results.append(dbURL)
+          }
+        }
+      }
+
+      return results
     }
 
     // MARK: - Public Methods

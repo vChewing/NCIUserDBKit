@@ -146,6 +146,12 @@ dotnet run --project NCIUserDBCLI -- dump C:\path\to\profile.db
 # 搜尋已安裝的自然輸入法資料庫
 dotnet run --project NCIUserDBCLI -- find
 
+此指令會在下列位置搜尋
+
+* macOS: `~/Library/Application Support/GOING{10-99}/UserData/Going{N}/profile.db`
+* Windows: `%APPDATA%\\Going{10-99}\\profile.db`
+
+首選當前平台的路徑，但也會試探對方的模式，避免因平台檢測失誤漏掉檔案。
 # 匯出所有找到的使用者自訂詞條
 dotnet run --project NCIUserDBCLI -- dumpall
 ```

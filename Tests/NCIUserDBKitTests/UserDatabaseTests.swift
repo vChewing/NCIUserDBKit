@@ -113,6 +113,50 @@ struct UserDatabaseTests {
     _ = databases
   }
 
+  @Test("findDatabases should locate both macOS and Windows style paths")
+  func findDatabases_BothPlatformPaths() throws {
+    var expected: [URL] = []
+
+    // create mac-style entry (under home)
+    #if os(macOS)
+      let homeURL = URL(fileURLWithPath: String(cString: getpwuid(getuid()).pointee.pw_dir))
+      let appSupport = homeURL
+        .appendingPathComponent("Library/Application Support/GOING10/UserData/Going10")
+      try FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
+      let macDB = appSupport.appendingPathComponent("profile.db")
+      FileManager.default.createFile(atPath: macDB.path, contents: nil)
+      expected.append(macDB)
+      defer {
+        try? FileManager.default
+          .removeItem(at: appSupport.deletingLastPathComponent().deletingLastPathComponent())
+      }
+    #endif
+
+    // create windows-style entry by overriding APPDATA
+    let tempApp = FileManager.default.temporaryDirectory
+      .appendingPathComponent("nci_app_\(UUID().uuidString)")
+    try FileManager.default.createDirectory(
+      at: tempApp.appendingPathComponent("Going10"),
+      withIntermediateDirectories: true
+    )
+    let winDB = tempApp.appendingPathComponent("Going10/profile.db")
+    FileManager.default.createFile(atPath: winDB.path, contents: nil)
+    expected.append(winDB)
+    defer { try? FileManager.default.removeItem(at: tempApp) }
+
+    let originalApp = ProcessInfo.processInfo.environment["APPDATA"]
+    setenv("APPDATA", tempApp.path, 1)
+    defer {
+      if let orig = originalApp { setenv("APPDATA", orig, 1) }
+    }
+
+    let found = NCIUserDBKit.UserDatabase.findDatabases()
+    // every expected URL should appear in the results
+    for url in expected {
+      #expect(found.contains(url))
+    }
+  }
+
   // MARK: Private
 
   // MARK: - Helper: Create Test Database

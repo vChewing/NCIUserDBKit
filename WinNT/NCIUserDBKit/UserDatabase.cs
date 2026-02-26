@@ -80,13 +80,37 @@ public sealed class UserDatabase : IDisposable, IEnumerable<Gram>, IAsyncEnumera
   /// <returns>找到的資料庫檔案路徑陣列</returns>
   public static List<string> FindDatabases() {
     var results = new List<string>();
-    var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-    if (string.IsNullOrEmpty(appData)) return results;
 
-    for (var version = MinVersion; version <= MaxVersion; version++) {
-      var dbPath = Path.Combine(appData, $"Going{version}", "profile.db");
-      if (File.Exists(dbPath)) {
-        results.Add(dbPath);
+    // Always attempt both common locations. If the current platform doesn't
+    // define the underlying folders the loops simply won't add anything.
+
+    // --- Windows-style path (APPDATA) ---
+    // Prefer the APPDATA environment variable when present so that callers can
+    // override the location (useful for tests).  Fall back to the SpecialFolder
+    // helper which returns the platform-specific directory.
+    var appData = Environment.GetEnvironmentVariable("APPDATA")
+                ?? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    if (!string.IsNullOrEmpty(appData)) {
+      for (var version = MinVersion; version <= MaxVersion; version++) {
+        var dbPath = Path.Combine(appData, $"Going{version}", "profile.db");
+        if (File.Exists(dbPath)) {
+          results.Add(dbPath);
+        }
+      }
+    }
+
+    // --- macOS-style path (~/Library/Application Support) ---
+    // Environment.SpecialFolder.Personal maps to "Documents" on macOS, which
+    // is **not** the home directory.  Use HOME/UserProfile instead.
+    string? home = Environment.GetEnvironmentVariable("HOME")
+                    ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    if (!string.IsNullOrEmpty(home)) {
+      var appSupport = Path.Combine(home, "Library", "Application Support");
+      for (var version = MinVersion; version <= MaxVersion; version++) {
+        var dbPath = Path.Combine(appSupport, $"GOING{version}", "UserData", $"Going{version}", "profile.db");
+        if (File.Exists(dbPath)) {
+          results.Add(dbPath);
+        }
       }
     }
 
